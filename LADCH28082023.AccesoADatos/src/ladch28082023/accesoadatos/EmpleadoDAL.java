@@ -3,16 +3,17 @@ package ladch28082023.accesoadatos;
 import java.sql.*;
 import java.util.ArrayList;
 import ladch.pkg28082023.entidades.Empleado;
+
 /**
  * @author Leonel
  */
 public class EmpleadoDAL {
-    
+
     static String getFields() {
         return "r.Id, r.Nombre, r.Apellido, r.Correo, r.Puesto ";
     }
-    
-    private static String getSelect(Empleado xEmp){
+
+    private static String getSelect(Empleado xEmp) {
         String sql = "SELECT ";
         if (xEmp.getTop_aux() > 0 && ComunDB.TIPODB == ComunDB.TipoDB.SQLSERVER) {
             sql += "TOP " + xEmp.getTop_aux() + " ";
@@ -28,7 +29,7 @@ public class EmpleadoDAL {
         }
         return sql;
     }
-    
+
     public static int create(Empleado xEmp) throws Exception {
         int result;
         String sql;
@@ -49,8 +50,8 @@ public class EmpleadoDAL {
             throw ex;
         }
         return result;
-    }  
-    
+    }
+
     static int asignarDatosResultSet(Empleado xEmp, ResultSet pResultSet, int pIndex) throws Exception {
         pIndex++;
         xEmp.setId(pResultSet.getInt(pIndex)); // index 1
@@ -64,11 +65,11 @@ public class EmpleadoDAL {
         xEmp.setPuesto(pResultSet.getString(pIndex)); // index 5
         return pIndex;
     }
-    
+
     private static void getData(PreparedStatement pPS, ArrayList<Empleado> xEmp) throws Exception {
         try (ResultSet resultSet = ComunDB.obtenerResultSet(pPS);) {
-            while (resultSet.next()) { 
-                Empleado xEmps = new Empleado(); 
+            while (resultSet.next()) {
+                Empleado xEmps = new Empleado();
                 asignarDatosResultSet(xEmps, resultSet, 0);
                 xEmp.add(xEmps);
             }
@@ -77,7 +78,7 @@ public class EmpleadoDAL {
             throw ex;
         }
     }
-    
+
     public static Empleado getById(Empleado xEmp) throws Exception {
         Empleado xEmps = new Empleado();
         ArrayList<Empleado> xEmple = new ArrayList();
@@ -92,8 +93,7 @@ public class EmpleadoDAL {
                 throw ex;
             }
             conn.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw ex;
         }
         if (xEmple.size() > 0) { // Verificar si el ArrayList de Rol trae mas de un registro en tal caso solo debe de traer uno
@@ -114,34 +114,42 @@ public class EmpleadoDAL {
                 throw ex;
             }
             conn.close();
-        } 
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw ex;
         }
         return xEmple;
     }
-    
+
     static void querySelect(Empleado xEmp, ComunDB.UtilQuery pUtilQuery) throws SQLException {
         PreparedStatement statement = pUtilQuery.getStatement();
         if (xEmp.getId() > 0) {
             pUtilQuery.AgregarWhereAnd(" r.Id=? ");
             if (statement != null) {
-                statement.setInt(pUtilQuery.getNumWhere(), xEmp.getId()); 
+                statement.setInt(pUtilQuery.getNumWhere(), xEmp.getId());
             }
-        } if (xEmp.getNombre()!= null && xEmp.getNombre().trim().isEmpty() == false) {
+        }
+        if (xEmp.getNombre() != null && xEmp.getNombre().trim().isEmpty() == false) {
             pUtilQuery.AgregarWhereAnd(" r.NombreLIKE ? ");
             if (statement != null) {
-                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getNombre() + "%"); 
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getNombre() + "%");
             }
-        } if (xEmp.getApellido()!= null && xEmp.getApellido().trim().isEmpty() == false) {
+        }
+        if (xEmp.getApellido() != null && xEmp.getApellido().trim().isEmpty() == false) {
             pUtilQuery.AgregarWhereAnd(" r.ApellidoLIKE ? ");
             if (statement != null) {
-                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getApellido() + "%"); 
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getApellido() + "%");
             }
-        } if (xEmp.getCorreo()!= null && xEmp.getCorreo().trim().isEmpty() == false) {
+        }
+        if (xEmp.getCorreo() != null && xEmp.getCorreo().trim().isEmpty() == false) {
             pUtilQuery.AgregarWhereAnd(" r.CorreoLIKE ? ");
             if (statement != null) {
-                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getCorreo() + "%"); 
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getCorreo() + "%");
+            }
+        }
+        if (xEmp.getPuesto() != null && xEmp.getPuesto().trim().isEmpty() == false) {
+            pUtilQuery.AgregarWhereAnd(" r.PuestoLIKE ? ");
+            if (statement != null) {
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getPuesto() + "%");
             }
         }
     }
@@ -149,27 +157,26 @@ public class EmpleadoDAL {
     public static ArrayList<Empleado> Search(Empleado xEmp) throws Exception {
         ArrayList<Empleado> xEmps = new ArrayList();
         try (Connection conn = ComunDB.obtenerConexion();) {
-            String sql = getSelect(book);
+            String sql = getSelect(xEmp);
             ComunDB comundb = new ComunDB();
-            ComunDB.UtilQuery utilQuery = comundb.new UtilQuery(sql, null, 0); 
-            querySelect(book, utilQuery);
-            sql = utilQuery.getSQL(); 
-            sql += addOrderBy(book);
+            ComunDB.UtilQuery utilQuery = comundb.new UtilQuery(sql, null, 0);
+            querySelect(xEmp, utilQuery);
+            sql = utilQuery.getSQL();
+            sql += addOrderBy(xEmp);
             try (PreparedStatement ps = ComunDB.createPreparedStatement(conn, sql);) {
                 utilQuery.setStatement(ps);
                 utilQuery.setSQL(null);
-                utilQuery.setNumWhere(0); 
-                querySelect(book, utilQuery);
-                getData(ps, books);
+                utilQuery.setNumWhere(0);
+                querySelect(xEmp, utilQuery);
+                getData(ps, xEmps);
                 ps.close();
             } catch (SQLException ex) {
                 throw ex;
             }
             conn.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw ex;
         }
-        return books;
+        return xEmps;
     }
 }
