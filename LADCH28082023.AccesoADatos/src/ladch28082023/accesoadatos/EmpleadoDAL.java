@@ -33,11 +33,12 @@ public class EmpleadoDAL {
         int result;
         String sql;
         try (Connection conn = ComunDB.obtenerConexion();) {
-            sql = "INSERT INTO Empleado(Title, Author, Year) VALUES(?, ?, ?)";
+            sql = "INSERT INTO Empleado(Nombre, Apellido, Correo, Puesto) VALUES(?, ?, ?, ?)";
             try (PreparedStatement ps = ComunDB.createPreparedStatement(conn, sql);) {
-                ps.setString(1, book.getTitle());
-                ps.setString(2, book.getAuthor());
-                ps.setString(3, book.getYear());
+                ps.setString(1, xEmp.getNombre());
+                ps.setString(2, xEmp.getApellido());
+                ps.setString(3, xEmp.getCorreo());
+                ps.setString(4, xEmp.getPuesto());
                 result = ps.executeUpdate();
                 ps.close();
             } catch (SQLException ex) {
@@ -50,24 +51,26 @@ public class EmpleadoDAL {
         return result;
     }  
     
-    static int asignarDatosResultSet(Book book, ResultSet pResultSet, int pIndex) throws Exception {
+    static int asignarDatosResultSet(Empleado xEmp, ResultSet pResultSet, int pIndex) throws Exception {
         pIndex++;
-        book.setId(pResultSet.getInt(pIndex)); // index 1
+        xEmp.setId(pResultSet.getInt(pIndex)); // index 1
         pIndex++;
-        book.setTitle(pResultSet.getString(pIndex)); // index 2
+        xEmp.setNombre(pResultSet.getString(pIndex)); // index 2
         pIndex++;
-        book.setAuthor(pResultSet.getString(pIndex)); // index 3
+        xEmp.setApellido(pResultSet.getString(pIndex)); // index 3
         pIndex++;
-        book.setYear(pResultSet.getString(pIndex)); // index 4
+        xEmp.setCorreo(pResultSet.getString(pIndex)); // index 4
+        pIndex++;
+        xEmp.setPuesto(pResultSet.getString(pIndex)); // index 5
         return pIndex;
     }
     
-    private static void getData(PreparedStatement pPS, ArrayList<Book> book) throws Exception {
+    private static void getData(PreparedStatement pPS, ArrayList<Empleado> xEmp) throws Exception {
         try (ResultSet resultSet = ComunDB.obtenerResultSet(pPS);) {
             while (resultSet.next()) { 
-                Book books = new Book(); 
-                asignarDatosResultSet(books, resultSet, 0);
-                book.add(books);
+                Empleado xEmps = new Empleado(); 
+                asignarDatosResultSet(xEmps, resultSet, 0);
+                xEmp.add(xEmps);
             }
             resultSet.close();
         } catch (SQLException ex) {
@@ -75,15 +78,15 @@ public class EmpleadoDAL {
         }
     }
     
-    public static Book getById(Book book) throws Exception {
-        Book books = new Book();
-        ArrayList<Book> xBook = new ArrayList();
+    public static Empleado getById(Empleado xEmp) throws Exception {
+        Empleado xEmps = new Empleado();
+        ArrayList<Empleado> xEmple = new ArrayList();
         try (Connection conn = ComunDB.obtenerConexion();) {
-            String sql = getSelect(book);
+            String sql = getSelect(xEmp);
             sql += " WHERE r.Id=?";
             try (PreparedStatement ps = ComunDB.createPreparedStatement(conn, sql);) {
-                ps.setInt(1, book.getId());
-                getData(ps, xBook);
+                ps.setInt(1, xEmp.getId());
+                getData(ps, xEmple);
                 ps.close();
             } catch (SQLException ex) {
                 throw ex;
@@ -93,19 +96,19 @@ public class EmpleadoDAL {
         catch (SQLException ex) {
             throw ex;
         }
-        if (xBook.size() > 0) { // Verificar si el ArrayList de Rol trae mas de un registro en tal caso solo debe de traer uno
-            books = xBook.get(0); // Si el ArrayList de Rol trae un registro o mas obtenemos solo el primero 
+        if (xEmple.size() > 0) { // Verificar si el ArrayList de Rol trae mas de un registro en tal caso solo debe de traer uno
+            xEmp = xEmple.get(0); // Si el ArrayList de Rol trae un registro o mas obtenemos solo el primero 
         }
-        return book;
+        return xEmp;
     }
 
-    public static ArrayList<Book> getAll() throws Exception {
-        ArrayList<Book> books = new ArrayList<>();
+    public static ArrayList<Empleado> getAll() throws Exception {
+        ArrayList<Empleado> xEmple = new ArrayList<>();
         try (Connection conn = ComunDB.obtenerConexion();) {
-            String sql = getSelect(new Book());
-            sql += addOrderBy(new Book());
+            String sql = getSelect(new Empleado());
+            sql += addOrderBy(new Empleado());
             try (PreparedStatement ps = ComunDB.createPreparedStatement(conn, sql);) {
-                getData(ps, books);
+                getData(ps, xEmple);
                 ps.close();
             } catch (SQLException ex) {
                 throw ex;
@@ -115,36 +118,36 @@ public class EmpleadoDAL {
         catch (SQLException ex) {
             throw ex;
         }
-        return books;
+        return xEmple;
     }
     
-    static void querySelect(Book book, ComunDB.UtilQuery pUtilQuery) throws SQLException {
+    static void querySelect(Empleado xEmp, ComunDB.UtilQuery pUtilQuery) throws SQLException {
         PreparedStatement statement = pUtilQuery.getStatement();
-        if (book.getId() > 0) {
+        if (xEmp.getId() > 0) {
             pUtilQuery.AgregarWhereAnd(" r.Id=? ");
             if (statement != null) {
-                statement.setInt(pUtilQuery.getNumWhere(), book.getId()); 
+                statement.setInt(pUtilQuery.getNumWhere(), xEmp.getId()); 
             }
-        } if (book.getTitle() != null && book.getTitle().trim().isEmpty() == false) {
-            pUtilQuery.AgregarWhereAnd(" r.TitleLIKE ? ");
+        } if (xEmp.getNombre()!= null && xEmp.getNombre().trim().isEmpty() == false) {
+            pUtilQuery.AgregarWhereAnd(" r.NombreLIKE ? ");
             if (statement != null) {
-                statement.setString(pUtilQuery.getNumWhere(), "%" + book.getTitle() + "%"); 
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getNombre() + "%"); 
             }
-        } if (book.getAuthor() != null && book.getAuthor().trim().isEmpty() == false) {
-            pUtilQuery.AgregarWhereAnd(" r.AuthorLIKE ? ");
+        } if (xEmp.getApellido()!= null && xEmp.getApellido().trim().isEmpty() == false) {
+            pUtilQuery.AgregarWhereAnd(" r.ApellidoLIKE ? ");
             if (statement != null) {
-                statement.setString(pUtilQuery.getNumWhere(), "%" + book.getAuthor() + "%"); 
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getApellido() + "%"); 
             }
-        } if (book.getYear() != null && book.getYear().trim().isEmpty() == false) {
-            pUtilQuery.AgregarWhereAnd(" r.YearLIKE ? ");
+        } if (xEmp.getCorreo()!= null && xEmp.getCorreo().trim().isEmpty() == false) {
+            pUtilQuery.AgregarWhereAnd(" r.CorreoLIKE ? ");
             if (statement != null) {
-                statement.setString(pUtilQuery.getNumWhere(), "%" + book.getYear() + "%"); 
+                statement.setString(pUtilQuery.getNumWhere(), "%" + xEmp.getCorreo() + "%"); 
             }
         }
     }
 
-    public static ArrayList<Book> Search(Book book) throws Exception {
-        ArrayList<Book> books = new ArrayList();
+    public static ArrayList<Empleado> Search(Empleado xEmp) throws Exception {
+        ArrayList<Empleado> xEmps = new ArrayList();
         try (Connection conn = ComunDB.obtenerConexion();) {
             String sql = getSelect(book);
             ComunDB comundb = new ComunDB();
