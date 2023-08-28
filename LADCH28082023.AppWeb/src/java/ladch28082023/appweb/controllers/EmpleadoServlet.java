@@ -4,6 +4,7 @@
  */
 package ladch28082023.appweb.controllers;
 
+import ladch28082023.accesoadatos.EmpleadoDAL;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -44,7 +45,6 @@ public class EmpleadoServlet extends HttpServlet {
             out.println("</html>");
         }
     }
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
