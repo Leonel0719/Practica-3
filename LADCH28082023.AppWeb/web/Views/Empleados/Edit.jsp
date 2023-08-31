@@ -1,9 +1,3 @@
-<%-- 
-    Document   : Edit
-    Created on : 28 ago. 2023, 11:02:47
-    Author     : kevin
---%>
-
 <%@page import="ladch.entidades.Empleados"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%Empleados empleado = (Empleados) request.getAttribute("empleado");%>  

@@ -1,9 +1,3 @@
-<%-- 
-    Document   : Listar
-    Created on : 28 ago. 2023, 11:03:00
-    Author     : kevin
---%>
-
 <%@page import="ladch.entidades.Empleados"%>
 <%@page import="java.util.ArrayList"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

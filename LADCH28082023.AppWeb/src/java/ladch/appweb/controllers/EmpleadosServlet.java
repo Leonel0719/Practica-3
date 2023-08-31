@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package ladch.appweb.controllers;
 
 import java.io.IOException;
@@ -16,6 +12,7 @@ import ladch.accesoadatos.EmpleadosDAL;
 import ladch.entidades.Empleados;
 import java.sql.*;
 import java.util.List;
+import ladch.appweb.utils.Utilidad;
 
 /**
  * @author Leonel
@@ -52,7 +49,7 @@ public class EmpleadosServlet extends HttpServlet {
 
                 request.getRequestDispatcher("Views/Empleados/Listar.jsp").forward(request, response);
             } catch (Exception ex) {
-                Logger.getLogger(EmpleadosServlet.class.getName()).log(Level.SEVERE, null, ex);
+                Utilidad.enviarError(ex.getMessage(), request, response);
             }
         }
 
